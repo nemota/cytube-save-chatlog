@@ -28,24 +28,6 @@
  	$chatSaveWrap.style.display="none";
  	$leftPaneInner.insertBefore($chatSaveWrap,$leftPaneInner.firstElementChild.nextElementSibling);
  	
- 	//作るもの
- 	//スタートボタンが押されたときのイベントハンドラ
- 	//↑ファイルが書き換えられる警告、ステータス変更、
- 	//　チェックボックスとかファイルとか全部readonly、(ボタンはストップボタンにできるかな?)
- 	//　ここから記録開始のメッセージを送る(appendchild()がいいだろう)
- 	//　定期的にメッセージを保存するメソッドを無限ループで起動
- 	//　OverWriteなら最初に全削除だけしてあとは両方末尾に追加でよさそう
- 	//
- 	//メッセージを保存するメソッド
- 	//↑十秒に一回とか動かす
- 	//　収集した最後のやつにID付与
- 	//　ファイルに保存(毎回読み込むべき？)
- 	//　無限ループ内につけるが、条件で終了できるように(あっちのハンドラの話)
- 	
- 	//
- 	//イベントハンドラ、関数
- 	//
- 	
  	//使う変数
  	var recording=false;//記録中か
  	var $messagebuffer=document.getElementById("messagebuffer");
