@@ -1,4 +1,5 @@
 //Synchtube Premium、jQueryに依存します
+var ele;
 (function () {
 	//
 	//要素の追加
@@ -20,19 +21,8 @@
  	$chatSaveWrap.innerHTML=
  	'<div id="chatSave-well" class="well from-holizontal">'+
 	'	<div style="text-align: center;">'+
-	'		<button id="fileToSave-wrap"class="btn btn-sm btn-default" style="padding:0;">'+
-	'			<label for="fileToSave" style="width:100%;height:100%;margin-bottom:0;padding:5px 10px;font-weight:400;">'+
-	'				<span id=filename>保存先ファイルを選択</span>'+
-	'				<input type="file" id="fileToSave" style="display:none"><br>'+
-	'			</label>'+
-	'		</button>'+
-	'		<label for="isOverWrited" style="font-weight:400;">'+
-	'			<input type="checkbox" id="isOverWrited" class="cs-checkbox">'+
-	'			選択したファイルに上書き(チェックしなければ末尾に追加)'+
-	'		</label>'+
-	'		<br>'+
 	'		<button class="btn btn-sm btn-default" id="chatSave-startbtn">記録スタート</button><br>'+
-	'		<span id="chatSave-status">保存先を選んでスタートボタンを押してください</span>'+
+	'		<span id="chatSave-status">スタートボタンを押すと記録を開始します</span>'+
 	'	</div>'+
 	'</div>';
  	$chatSaveWrap.style.display="none";
@@ -59,12 +49,8 @@
  	//使う変数
  	var recording=false;//記録中か
  	var $messagebuffer=document.getElementById("messagebuffer");
- 	var $isOverWrited=document.getElementById("isOverWrited");
- 	var $fileToSaveWrap=document.getElementById("fileToSave-wrap");
- 	var $fileToSave=document.getElementById("fileToSave");
  	var $chatSaveStartBtn=document.getElementById("chatSave-startbtn");
  	var $chatSaveStatus=document.getElementById("chatSave-status");
- 	var $filename=document.getElementById("filename");
  	var $lastrecorded;
  	var chatlog="";//出力する文字列
  	
@@ -78,32 +64,20 @@
  		}
  	}
  	
- 	//ファイル参照を決めたときにファイル名を表示
- 	$fileToSave.onchange=function () {
- 		$filename.innerText="保存先:"+$fileToSave.files[0].name;
- 		
- 	}
  	
  	//スタート・ストップボタンが押されたときの動作
  	$chatSaveStartBtn.onclick=function () {
  		if(!recording){//始めるときなら
  			//始める前の確認
- 			if($fileToSave.files.length!=1){
- 				alert("1つのファイルを選択してください");
- 				return;
- 			}
- 			if (!confirm("ファイルが書き換えられます。よろしいですか？")){
+ 			if (!confirm("記録を開始します。よろしいですか？")){
  				return;
  			}
  			
  			recording=true;
  			$chatSaveStatus.innerText="準備中";
  			
- 			//ファイル変更等の操作を無効に
- 			$fileToSave.disabled=true;
- 			$isOverWrited.disabled=true;
+ 			//ボタン操作を一時的に無効に
  			$chatSaveStartBtn.disabled=true;
- 			$fileToSaveWrap.disabled=true;
  			
  			//開始メッセージを表示
  			var $startMessage=document.createElement("div");
@@ -114,11 +88,6 @@
  			$startMessage.appendChild($startMessage_span);
  			$messagebuffer.appendChild($startMessage);
  			$lastrecorded=$startMessage.previousElementSibling;
- 			
- 			//OverWriteの場合ファイルをリセット
- 			if($isOverWrited.value){
- 				
- 			}
  			
  			//ストップボタンを有効に
  			$chatSaveStartBtn.innerText="記録ストップ";
@@ -157,11 +126,54 @@
  	
  	//まだ保存していないメッセージを保存する
  	function saveRestMessages() {
+ 		console.log(chatlog);
  		while($lastrecorded.nextElementSibling){//次の要素がある間
  			$lastrecorded=$lastrecorded.nextElementSibling;
  			
  			//$lastrecordedの中身をテキストに起こし、ログに追記
- 			
+ 			var tempText="";
+ 			var spans=$lastrecorded.getElementsByTagName("span");
+ 			if(spans.length==0){//切断通知などのとき
+ 				tempText+=$lastrecorded.innerText+"\n";
+ 			}else{//その他のとき
+ 				for(var tempNode=$lastrecorded.firstChild;tempNode!=null;tempNode=tempNode.nextSibling){
+ 					//子要素が複数あるかで場合分け
+ 					if(tempNode.childNodes.length>1){
+ 						for(var tempNode2=tempNode.firstChild;tempNode2!=null;tempNode2=tempNode2.nextSibling){
+ 							if(tempNode2.getElementsByClassName&&tempNode2.getElementsByClassName("embedimg").length>0){//埋め込み画像があれば
+ 								//リンクを追加
+ 								tempText+=tempNode2.getElementsByClassName("embedimg")[0].src+" ";
+ 								
+ 							}else if(tempNode2.classList&&tempNode2.classList.contains("channel-emote")){//エモートであれば
+ 								//エモートタイトルを追加
+ 								tempText+=tempNode2.title+" ";
+ 								
+ 							}else{//その他のとき
+ 								//文を追加
+ 								tempText+=tempNode2.innerText||tempNode2.data;
+ 								
+ 							}
+ 						}
+ 						
+ 					}else{
+ 						if(tempNode.getElementsByClassName("embedimg").length>0){//埋め込み画像があれば
+ 							//リンクを追加
+ 							tempText+=tempNode.getElementsByClassName("embedimg")[0].src+" ";
+ 							
+ 						}else if(tempNode.getElementsByClassName("channel-emote").length>0){//エモートがあれば
+ 							//エモートタイトルを追加
+ 							tempText+=tempNode.getElementsByClassName("channel-emote")[0].title+" ";
+ 							
+ 						}else{//その他のとき
+ 							//文を追加
+ 							tempText+=tempNode.innerText||tempNode.data;
+ 							
+ 						}
+ 					}
+ 					
+ 				}
+ 				chatlog+=tempText+"\n";
+ 			}
  			
  			
  			
@@ -172,11 +184,12 @@
  				
  				//blobを作成し、ダウンロード
  				
+ 				
  				//ファイル変更等の操作を有効に
- 				$fileToSave.disabled=false;
- 				$isOverWrited.disabled=false;
  				$chatSaveStartBtn.disabled=false;
- 				$fileToSaveWrap.disabled=false;
+ 				
+ 				//ログをリセット
+ 				chatlog="";
  				
  				$chatSaveStartBtn.innerText="記録スタート";
  				$chatSaveStatus.innerText="保存先を選んでスタートボタンを押してください";
