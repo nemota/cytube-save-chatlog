@@ -86,7 +86,8 @@
  			saveRestMessages();
  			var saveroutine=setInterval(function () {
 				if(!recording){
-					clearInterval(saveroutine);				
+					clearInterval(saveroutine);
+					return;				
 				}
  				saveRestMessages();
  			},30000);
@@ -189,5 +190,8 @@
  			}
  		}
  	}
+ 	
+ 	//ページを離れようとしたときの確認ダイアログ(殆どのブラウザではブラウザ規定メッセージが出る)
+ 	window.onbeforeunload=function(e){e.returnValue="ページを離れると記録中のログが消えます。\nよろしいですか？"}
  	
 })();
