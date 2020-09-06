@@ -1,16 +1,7 @@
-//Synchtube Premiumに依存します
 (function () {
 	//
 	//要素の追加
 	//
-	
-	//ボタンを作る
-	var $chatControls=document.getElementById("chatcontrols");
-	var $chatSaveBtn=document.createElement("button");
-	$chatSaveBtn.id="chatsave-btn";
-	$chatSaveBtn.classList.add("btn","btn-sm","btn-default","btn-chatctrl");
-	$chatSaveBtn.innerHTML="保";//ボタンに表示するもの(仮)
-	$chatControls.insertBefore($chatSaveBtn,$chatControls.firstElementChild.nextElementSibling);
 	
 	//関連操作用のウィンドウを作る
 	var $leftPaneInner=document.getElementById("leftpane-inner");
@@ -28,6 +19,32 @@
  	$chatSaveWrap.style.display="none";
  	$leftPaneInner.insertBefore($chatSaveWrap,$leftPaneInner.firstElementChild.nextElementSibling);
  	
+ 	if(document.getElementById("chatcontrols")){//Synchtube Premiumがあれば
+ 		//保ボタンを作る
+		var $chatControls=document.getElementById("chatcontrols");
+		var $chatSaveBtn=document.createElement("button");
+		$chatSaveBtn.id="chatsave-btn";
+		$chatSaveBtn.classList.add("btn","btn-sm","btn-default","btn-chatctrl");
+		$chatSaveBtn.innerHTML="保";//ボタンに表示するもの(仮)
+		$chatControls.insertBefore($chatSaveBtn,$chatControls.firstElementChild.nextElementSibling);
+		
+		//保ボタンを押したときの動作
+	 	$chatSaveBtn.onclick=function () {
+ 		$($chatSaveBtn).toggleClass("btn-success");
+ 			if($chatSaveBtn.classList.contains("btn-success")){
+ 				$chatSaveWrap.style.display="block";
+ 			}else{
+ 				$chatSaveWrap.style.display="none";
+ 			}
+ 		}
+ 		
+ 		//chatsave関連ウィンドウを非表示に
+ 		$chatSaveWrap.style.display="none";
+ 	}else{//Synchtube Premiumがないなら
+ 		//chatsave関連ウィンドウを常に表示
+ 		$chatSaveWrap.style.display="block";
+ 	} 	
+ 	
  	//使う変数
  	var recording=false;//記録中か
  	var $messagebuffer=document.getElementById("messagebuffer");
@@ -37,16 +54,7 @@
  	var $lastrecorded;
  	var chatlog="";//出力する文字列
  	
- 	//保ボタンを押したときの動作
- 	$chatSaveBtn.onclick=function () {
- 		$($chatSaveBtn).toggleClass("btn-success");
- 		if($chatSaveBtn.classList.contains("btn-success")){
- 			$chatSaveWrap.style.display="block";
- 		}else{
- 			$chatSaveWrap.style.display="none";
- 		}
- 	}
- 	
+
  	
  	//スタート・ストップボタンが押されたときの動作
  	$chatSaveStartBtn.onclick=function () {
@@ -168,7 +176,6 @@
  			//ここで保存が終わりなら
  			if($lastrecorded.id=="finishmessage"){
  				recording=false;
- 				addChatNotification("記録を終了しました");
  				
  				//blobを作成し、ダウンロード
  				var link=document.createElement("a");
